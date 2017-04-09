@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8"/>
+<title>Insert title here</title>
+</head>
+<body>
+
+<p>Name :<input id="name" type="text"/></p>
+
+<div id="output" style="min-height: 200px; white-space: pre; border: 1px solid black;"
+     ondragenter="document.getElementById('output').textContent = ''; event.stopPropagation(); event.preventDefault();"
+     ondragover="event.stopPropagation(); event.preventDefault();"
+     ondrop="event.stopPropagation(); event.preventDefault();
+     dodrop(event);">
+     DROP FILES HERE FROM FINDER OR EXPLORER
+     <p><input type="file" id="img_upload" multiple="multiple"/></p>
+</div>
+
+
+<p><input type="submit" id="submit" value="Submit"/></p>
+
+<div>
+        <textarea id="base64_code" rows="30" cols="360"></textarea>
+        <p id="img_area"></p>
+</div>
+
+
+<div>
+        <textarea id="json" rows="30" cols="360"></textarea>
+</div>
+
+</body>
+<script>
+/*<![CDATA[*/
+		var test = document.getElementById("json");
+		var JSONData = {'name':"name", 'imagesInBase64':[]};
+        var fsubmit = document.getElementById("submit");
+        var length;
+
+window.onload = function(){ 
+        // 抓取上传图片，转换代码结果，显示图片的dom
+        var img_upload=document.getElementById("img_upload");
+        var base64_code=document.getElementById("base64_code");
+        var fsubmit = document.getElementById("submit");
+        var img_area=document.getElementById("img_area");
+
+        // 添加功能出发监听事件
+        img_upload.addEventListener('change',readFile,false);
+        fsubmit.addEventListener('click',upload,false);
+        }
+		
+		
+function readFile(){
+			window.length = this.files.length;
+			for(var i=0; i<window.length; i++)
+			{
+				var file=this.files[i];
+				if(!/image\/\w+/.test(file.type))
+				{ 
+					alert("请确保文件为图像类型"); 
+					return false; 
+				}
+				
+				var reader=new FileReader();
+				reader.readAsDataURL(file);
+				reader.onload=function()
+				{
+					var fileURL = this.result.replace("data\:image\/jpeg\;base64\,","")
+					base64_code.innerHTML += fileURL ; 
+					img_area.innerHTML += '<div>图片img标签展示：</div><img src="'+this.result+'" alt=""/>';
+					window.JSONData.imagesInBase64.push(fileURL);
+				}
+			}
+			
+			console.log(window.JSONData.imagesInBase64);
+            
+        }
+        
+        
+function dodrop(event)
+{
+  var dt = event.dataTransfer;
+  var files1 = dt.files;
+  window.length = files1.length;
+  for(var i=0; i<window.length; i++)
+			{
+				var file1=files1[i];
+				if(!/image\/\w+/.test(file1.type))
+				{ 
+					alert("请确保文件为图像类型"); 
+					return false; 
+				}
+				
+				var reader=new FileReader();
+				reader.readAsDataURL(file1);
+				reader.onload=function()
+				{
+					var fileURL1 = this.result.replace("data\:image\/jpeg\;base64\,","")
+					base64_code.innerHTML += fileURL1 ; 
+					img_area.innerHTML += '<div>图片img标签展示：</div><img src="'+this.result+'" alt=""/>';
+					window.JSONData.imagesInBase64.push(fileURL1);
+				}
+			}
+
+}        
+		
+function upload(){
+
+	var name = document.getElementById("name");
+	window.JSONData.name = name.value;
+	var xmlhttp = new XMLHttpRequest();
+	xmlhttp.open("POST", "/favorite");
+	xmlhttp.setRequestHeader("Content-Type", "application/json");
+	xmlhttp.send(JSON.stringify(JSONData));
+}
+
+    /*]]>*/
+</script>
+
+
+</html>
